@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- ------------------------------------------- -->
+	<!-- Simple Line Icons CSS (font + style) -->
+	<link rel="stylesheet" 
+		href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" 
+		href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+		crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/form-factory.css">
+	<!-- Custom CSS -->
+	<style>
+	.react-alert {
+		margin-top: 1rem;
+		color: #856404;
+		background-color: #fff3cd;
+		border-color: #ffeeba;
+		position: relative;
+		padding: .75rem 1.25rem;
+		margin-bottom: 1rem;
+		border: 1px solid transparent;
+		border-radius: .25rem;
+	}
+	</style>
+	<!-- --- -->
+	<title>hyperApp - Bilety Zlot 2019</title>
+</head>
+
+<body>
+	<!--
+	<section class="container-fluid summit-header" style="text-align: center; margin-bottom: 40px;">
+		<div style="padding-top: 10px;"> <img src="img/zlot_logo_blue_2x.png" width="200" height="68"> </div>
+		<h1 class="section-header"> Zlot Programistów Delphi 2019 </h1>
+		<h5 class="text-muted"> 4-5 czerwca 2019, Mszczonów </h5>
+	</section>
+	
+	<section class="jumbotron py-3 text-center" id="kup-bilety">
+		<div class="container">
+			<h1 class="jumbotron-heading"><i class="icon-note"></i> Kup bilety </h1>
+			<div class="h5">Zarejestruj udział firmy / udział indywidualny w zlocie i kup bilety</div>
+		</div>
+	</section>
+	-->
+	
+	<main class="container" id="buy-ticket-section">
+	</main>
+
+	<main class="container">
+		<div class="alert alert-info"> 
+			<h3 class="text-center"> HyperApp v1 TicketForm </h3>
+			<p class="text-center">
+				Tutaj kończy się świat dynamicznie generowananego kodu HTML przez <b>HyperApp</b>.
+			</p> 
+			<hr />
+			<p class="text-center">
+				<img src="./img/github.svg" alt="" style="position: relative; width:3em; top:-0.1em;">
+				<a href="https://github.com/jorgebucaran/hyperapp">hyperapp project</a>
+			</p>
+		</div>
+	</main>
+	
+
+	<footer class="mt-5 py-3 text-center bg-dark text-white">
+		(c) 2019 BSC Polska
+	</footer>
+		
+	<noscript> You need to enable JavaScript to run this app. </noscript>
+	
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<!--
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+		-->
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
+		crossorigin="anonymous"></script>
+	<!--
+	<script src="./assets/js/bootstrap-4.3.1/bootstrap.min.js"></script>
+	-->
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" 
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
+		crossorigin="anonymous"></script>
+	<!-- *********************** -->
+	<script src="https://unpkg.com/hyperapp"></script>
+<script>
+const h = hyperapp.h	
+
+const state = {
+  count: 0
+}
+
+const actions = {
+  down: value => state => ({ count: state.count - value }),
+  up: value => state => ({ count: state.count + value })
+}
+
+
+const view = (state, actions) => (
+	h("div", {}, [
+		h("h1", {}, state.count),
+		h("button", { onclick: () => actions.down(1) }, "-"),
+		h("button", { onclick: () => actions.up(1) }, "+")
+	])
+)
+
+rangeToArray = range => Array.from({length:range.max-range.min+1},(v,k)=>k+range.min)
+
+const formRedererHyperApp = {
+	generateDemo: function(containerId, definition) {
+		elem = document.getElementById (containerId)
+		hyperapp.app (state, actions, view, elem)
+	},
+	reportErrors: errors => (errors.map ( 
+		(msg) => console.error(msg) )
+	),
+	components: {
+		Hello: props => h("div", { class: "main" }, props.title),
+		Form: props => (
+			h( "form", { id: "aaaa", class: "needs-validation" }, props.formModel.map( 
+				(row) =>  {
+					switch (row.rowType) {
+        				case "section":
+							return h( "div", { class: "h6 form-section" }, row.title+':' ) 
+
+						case "two-columns":
+        					return h( "div", { class:"form-row" }, 
+								row.fields.map ( field => 
+									h( "div", { class:"col-sm-6" },
+										h( "fieldset", { class:"mt-1 w-100" }, [
+											h( "label", { 
+													class: "mt-2 m-0",
+													for: field.id
+												}, 
+												field.caption 
+											),
+											h( "input", { 
+													class: "form-control", 
+													type: "text",
+													id: field.id,
+													name: field.id,
+													required: field.isRequired
+												} 
+											),
+											h( "div", { 
+													class:"invalid-feedback" 
+												}, 
+												field.feedback
+											),
+										])
+									)
+								)
+							);
+						case "ext-tickets":
+							return h( "div", { class:"form-row" }, [
+								h( "fieldset", { class: "col-sm-3" }, [
+									h( "label", { class: "m-0", for: row.select.id}, 
+										row.select.caption ),
+									h( "select", { 
+											class: "form-control", 
+											name: row.select.id,
+											id: row.select.id,
+											value: 1  //state.value
+										},
+										rangeToArray(row.select.range).map (
+											(val,idx) => h( "option", 
+												{ value: val.toString() }, val 
+											)
+										)
+									)
+								]),
+								h( "div", { class: "col-sm-9 mt-0" }, [
+									h( "p", { class:"mb-0" }, row.total.caption ),
+									h( "h5", { class:"mt-0" }, [
+										h( "span", { id: row.total.id}, "[total value]"),  // state.totalValue
+										" zł"
+									]),
+								])
+							]);
+						case "confirm-gdpr":
+							return h( "div", { class:"form-row" }, "GDPR: Zgoda na przetwarzanie");
+							/*
+							case "confirm-gdpr":
+								<FieldAgreeGDPR 
+									key={key}
+									checkboxId={row.name} 
+									isRequired={row.isRequired} />
+							*/
+						default:
+							return h( "div", { class: "row" }, row.rowType )
+					}
+				} )
+			)
+		)
+	},
+	generate: function (containerId, formDefinition) {
+		const htmlRootElem = document.getElementById(containerId);
+		const isValid = paramsValidator.validate (
+			containerId, htmlRootElem, formDefinition
+		);
+		if (isValid) {
+			hyperapp.app (undefined , undefined, 
+				h(
+					this.components.Form, 
+					{formID: formDefinition.formID,  formModel: formDefinition.model}
+				), 
+				htmlRootElem
+			)
+		} else {
+			this.reportErrors(paramsValidator.errorMessageList);
+		}
+	}
+}
+
+const paramsValidator = {
+	errorMessageList: [],
+	logError: function (msg) {
+		this.errorMessageList.push(msg);
+	},
+	validate: function (sectionID, rootElem, definition) {
+		this.errorMessageList = [];
+		var v1 = (typeof sectionID === "string") || this.logError (
+			"param1: sectionID string paramerer is required");
+		var v2 = (rootElem !== null) || this.logError (
+			"param1: sectionID has to be proper id of the HTML element");
+		var v3 = (typeof definition === "object") || this.logError (
+			"param2: formDefinition has to be object");
+		var v4 = v3 && (typeof definition.formID === "string" || this.logError (
+			"param2: formDefinition.formID: string is required"));
+		var v5 = v3 && (Array.isArray(definition.model) ||  this.logError (
+			"param2: formDefinition.model: Array is required"));
+		return v1 && v2 && v3 && v4 && v5;
+	},
+}
+
+</script>
+	<!-- *********************** -->
+	<script>
+		function renderTicketForm (containerId) {
+
+			const ticketFormDefinition = {
+				formID: "form-ticket",
+				model : [{ 
+					rowType: "section",
+					title: "Osoba rejestrujaca" 
+				},{ 
+					rowType: "two-columns",
+					fields: [{
+						fieldType: "text",
+						name: "person", 
+						caption: "Imię i nazwisko", 
+						feedback: "Proszę wprowadzić imię i nazwisko",
+						isRequired: true
+					},{
+						fieldType: "text",
+						name: "position", 
+						caption: "Stanowisko", 
+						feedback: "Proszę wprowadzić stanowisko",
+						isRequired: true
+					}]
+				},{ 
+					rowType: "two-columns",
+					fields: [{
+						fieldType: "email",
+						name: "email", 
+						caption: "Email", 
+						feedback: "Proszę wprowadzić adres email",
+						// <input type="email" />
+						isRequired: true
+					},{
+						fieldType: "text",
+						name: "phone", 
+						caption: "Telefon (najlepiej mobilny)", 
+						feedback: "Proszę wprowadzić nr telefonu",
+						isRequired: true
+					}]
+				},{ 
+					rowType: "section",
+					title: "Bilety" 
+				},{ 
+					rowType: "ext-tickets",
+					ticketValue: 799,
+					select: {
+						id: "tickets",
+						caption: "Liczba biletów",
+						range: {min:1, max:7},
+					},
+					total: {
+						id: "totalTicketValue",
+						caption: "Koszt całkowity netto"
+					}
+				},{ 
+					rowType: "section",
+					title: "Dane do faktury" 
+				},{ 
+					rowType: "two-columns",
+					fields: [{
+						fieldType: "text",
+						name: "company", 
+						caption: "Nazwa firmy", 
+						feedback: "Proszę wprowadzić nazwę firmy lub imię i nazwisko w przypadku osoby prywatnej",
+						isRequired: true
+					},{
+						fieldType: "text",
+						name: "address", 
+						caption: "Adres", 
+						feedback: "Proszę wprowadzić adres firmy",
+						isRequired: true
+					}]
+				},{ 
+					rowType: "two-columns",
+					fields: [{
+						fieldType: "text",
+						name: "postalCode", 
+						caption: "Kod pocztowy", 
+						feedback: "Proszę wprowadzić kod pocztowy",
+						isRequired: true
+					},{
+						fieldType: "text",
+						name: "city", 
+						caption: "Miasto", 
+						feedback: "Proszę wprowadzić miasto",
+						isRequired: true
+					}]
+				},{ 
+					rowType: "two-columns",
+					fields: [{
+						fieldType: "text",
+						name: "nip", 
+						caption: "NIP", 
+						feedback: "Proszę wprowadzić NIP firmy lub n/d w przypadku osoby prywatnej",
+						isRequired: true
+					}]
+				},{
+					rowType: "confirm-gdpr",
+					name: "giodo_agree",
+					isRequired: true
+				}]
+			}
+			// formRedererHyperApp.generateDemo(containerId,ticketFormDefinition);
+			formRedererHyperApp.generate(containerId,ticketFormDefinition);
+		}
+
+		renderTicketForm ("buy-ticket-section")
+
+		$( document ).ready(function() {
+		});
+	</script>
+	<!-- *********************** -->
+</body>
+
+</html>
