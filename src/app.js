@@ -55,7 +55,9 @@ const FormApp = (containerId, formDefinition) => {
         h( "fieldset", { class: "col-sm-3" }, [
           h( "label", { class: "m-0", for: props.row.select.id}, 
           props.row.select.caption ),
-          h( "select", {  class: "form-control", name: props.row.select.id,
+          h( "select", 
+            { class: "form-control", 
+              name: props.row.select.id,
               id: props.row.select.id, 
               onchange: (ev) => actions.onChangeTicketCounter(ev),
             },
@@ -67,8 +69,10 @@ const FormApp = (containerId, formDefinition) => {
         h( "div", { class: "col-sm-9 mt-0" }, [
           h( "p", { class:"mb-0" }, props.row.total.caption ),
           h( "h5", { class:"mt-0" }, [
-            h( "span", { id: props.row.total.id}, 
-              state.tickets*props.row.ticketValue),
+            h( "span", 
+              { id: props.row.total.id },
+              state.tickets*props.row.ticketValue
+            ),
             " zł"
           ]),
         ])
@@ -109,16 +113,16 @@ const formRedererHyperApp = {
   generateDemo: function(containerId) {
     CounterApp ( document.getElementById (containerId) )
   },
-  generate2: function (containerId, formDefinition) {
-    FormApp ( document.getElementById(containerId), formDefinition)
-  },
   generate: function (containerId, formDefinition) {
     const htmlRootElem = document.getElementById(containerId);
     const isValid = paramsValidator.validate (
       containerId, htmlRootElem, formDefinition
     );
     if (isValid) {
-      FormApp (containerId, formDefinition)
+      FormApp (
+        document.getElementById(containerId), 
+        formDefinition
+      )
     } else {
       this.reportErrors(paramsValidator.errorMessageList);
     }
