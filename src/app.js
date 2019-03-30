@@ -23,72 +23,82 @@ const FormApp = (containerId, formDefinition) => {
   const rangeToArray = 
     ({min,max}) => Array.from(Array(max-min+1),(v,index)=>min+index)
   // -----------------------------------
-  const state = {} 
-  const actions = {}
-  // -----------------------------------
-  const RowSection = props => 
-    h( "div", { class: "h6 form-section" }, props.row.title ) 
-  // -----------------------------------
-  const RowTwoColumns = props =>
-    h( "div", { class:"form-row" }, 
-      props.row.fields.map ( field => 
-        h( "div", { class:"col-sm-6" },
-          h( "fieldset", { class:"mt-1 w-100" }, [
-            h( "label", { class: "mt-2 m-0", for: field.id }, field.caption ),
-            h( "input", { class: "form-control", type: field.fieldType,
-                id: field.id, name: field.id, required: field.isRequired } ),
-            h( "div", { class:"invalid-feedback" }, field.feedback ),
-          ])
-        )
-      )
-    )
-  // -----------------------------------
-  const RowTicketCount = props => 
-    h( "div", { class:"form-row" }, [
-      h( "fieldset", { class: "col-sm-3" }, [
-        h( "label", { class: "m-0", for: props.row.select.id}, 
-        props.row.select.caption ),
-        h( "select", {  class: "form-control", name: props.row.select.id,
-            id: props.row.select.id,  value: 1  //state.value
-          },
-          rangeToArray(props.row.select.range).map (
-            (v) => h( "option",  { value: v }, v )
+  const state = {
+    tickets: 1
+  } 
+  const actions = {
+    onChangeTicketCounter: (ev) => (
+      (state) => ({ tickets: Number(ev.target.value) })
+    ), 
+  }
+  const view = (state, actions) => {
+    // -----------------------------------
+    const RowSection = props => 
+      h( "div", { class: "h6 form-section" }, props.row.title ) 
+    // -----------------------------------
+    const RowTwoColumns = props =>
+      h( "div", { class:"form-row" }, 
+        props.row.fields.map ( field => 
+          h( "div", { class:"col-sm-6" },
+            h( "fieldset", { class:"mt-1 w-100" }, [
+              h( "label", { class: "mt-2 m-0", for: field.id }, field.caption ),
+              h( "input", { class: "form-control", type: field.fieldType,
+                  id: field.id, name: field.id, required: field.isRequired } ),
+              h( "div", { class:"invalid-feedback" }, field.feedback ),
+            ])
           )
         )
-      ]),
-      h( "div", { class: "col-sm-9 mt-0" }, [
-        h( "p", { class:"mb-0" }, props.row.total.caption ),
-        h( "h5", { class:"mt-0" }, [
-          h( "span", { id: props.row.total.id}, "[total value]"),  // state.totalValue
-          " zł"
+      )
+    // -----------------------------------
+    const RowTicketCount = props => 
+      h( "div", { class:"form-row" }, [
+        h( "fieldset", { class: "col-sm-3" }, [
+          h( "label", { class: "m-0", for: props.row.select.id}, 
+          props.row.select.caption ),
+          h( "select", {  class: "form-control", name: props.row.select.id,
+              id: props.row.select.id, 
+              onchange: (ev) => actions.onChangeTicketCounter(ev),
+            },
+            rangeToArray(props.row.select.range).map (
+              (v) => h( "option",  { value: v }, v )
+            )
+          )
         ]),
-      ])
-    ]); 
-  
-  // -----------------------------------
-  const Form = props => 
-    h( "form", { id: props.formId, class: "needs-validation" }, 
-      props.formModel.map( (row) => {
-        switch (row.rowType) {
-          case "section":
-            return h( RowSection, { row: row } )
-          case "two-columns":
-            return h( RowTwoColumns, { row: row } )
-          case "ext-tickets":
-            return h( RowTicketCount, { row: row } )
-          case "confirm-gdpr":
-            return h( "div", { class:"form-row" }, "GDPR: Zgoda na przetwarzanie");
-          default:
-            return h( "div", { class: "row" }, row.rowType )
+        h( "div", { class: "col-sm-9 mt-0" }, [
+          h( "p", { class:"mb-0" }, props.row.total.caption ),
+          h( "h5", { class:"mt-0" }, [
+            h( "span", { id: props.row.total.id}, 
+              state.tickets*props.row.ticketValue),
+            " zł"
+          ]),
+        ])
+      ]); 
+    
+    // -----------------------------------
+    const Form = props => 
+      h( "form", { id: props.formId, class: "needs-validation" }, 
+        props.formModel.map( (row) => {
+          switch (row.rowType) {
+            case "section":
+              return h( RowSection, { row: row } )
+            case "two-columns":
+              return h( RowTwoColumns, { row: row } )
+            case "ext-tickets":
+              return h( RowTicketCount, { row: row } )
+            case "confirm-gdpr":
+              return h( "div", { class:"form-row" }, "GDPR: Zgoda na przetwarzanie");
+            default:
+              return h( "div", { class: "row" }, row.rowType )
 
-        }
-      }) 
-    )
-  // -----------------------------------
-  const view = h( Form, {
-    formId: formDefinition.formId,  
-    formModel: formDefinition.model
-  } )
+          }
+        }) 
+      )
+    // -----------------------------------
+    return h( Form, {
+      formId: formDefinition.formId,  
+      formModel: formDefinition.model
+    } )
+  }
   hyperapp.app (state, actions, view, containerId)
 }
 
