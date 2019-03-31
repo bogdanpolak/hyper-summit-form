@@ -99,6 +99,16 @@ const FormApp = (containerId, formDefinition) => {
               [ htmInput, htmLabel, htmFeedback, htmDescription ] ) ) )
     }
     // -----------------------------------
+    const RowSubmitButton = props => {
+      return h ( "div", { class: "text-center" } , "[ Sumbmit button]" )
+      /*
+      rowType: "submit",
+      caption: "Zarejestruj się",
+      withSpinner: true,
+      busyCaption: "Trwa zgłaszanie..."
+      */
+    }
+    // -----------------------------------
     const Form = props => 
       h( "form", { id: props.formId, class: "needs-validation" }, 
         props.formModel.map( (row) => {
@@ -111,6 +121,8 @@ const FormApp = (containerId, formDefinition) => {
               return h( RowTicketCount, { row: row } )
             case "confirm-gdpr":
               return h( RowAgreeGDPR, { row: row } );
+            case "submit":
+              return h( RowSubmitButton, { row: row } );
             default:
               return h( "div", { class: "row" }, row.rowType )
 
