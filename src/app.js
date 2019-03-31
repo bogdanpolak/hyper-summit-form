@@ -78,27 +78,26 @@ const FormApp = (containerId, formDefinition) => {
         ])
       ])
     // -----------------------------------
-    const RowAgreeGDPR = props => 
-      h( "div", { class: "form-group mt-2" },
-        h( "div", { class: "form-check" }, [
-          h ( "input", 
-            {
-              type: "checkbox",
-              class: "form-check-input mt-2", 
-              id: props.row.name,
-              name: props.row.name,
-              required: props.row.isRequired
-            }, ),
-
-          h ( "label", 
-              { class: "form-check-label", for: props.row.name }, 
-              props.row.caption 
-          ),
-          h ( "div", { class: "invalid-feedback mb-2" }, props.row.feedback ),
-          h ("div", { class: "small" }, props.row.description )
-        ] )
+    const RowAgreeGDPR = props => { 
+      const htmInput =  h ( "input", 
+        { type: "checkbox", class: "form-check-input mt-2", 
+          id: props.row.name,
+          name: props.row.name,
+          required: props.row.isRequired }
       )
-
+      const htmLabel = h ( "label", 
+        { class: "form-check-label", for: props.row.name }, 
+        props.row.caption 
+      )
+      const htmFeedback = h ( "div", { class: "invalid-feedback mb-2" }, 
+        props.row.feedback )
+      const htmDescription = h ("div", { class: "small" }, 
+        props.row.description )
+      return (
+        h( "div", { class: "form-group mt-2" },
+          h ( "div", { class: "form-check" }, 
+              [ htmInput, htmLabel, htmFeedback, htmDescription ] ) ) )
+    }
     // -----------------------------------
     const Form = props => 
       h( "form", { id: props.formId, class: "needs-validation" }, 
