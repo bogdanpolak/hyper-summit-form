@@ -18,18 +18,27 @@ const CounterApp = (htmlContainer) => {
 }
 
 
-const FormApp = (containerId, formDefinition) => {
+const FormApp = ( containerId, definition ) => {
   const h = hyperapp.h	
   const rangeToArray = 
     ({min,max}) => Array.from(Array(max-min+1),(v,index)=>min+index)
   // -----------------------------------
   const state = {
-    tickets: 1
+    tickets: 1,
+    onSubmitEvent: () => {}
   } 
   const actions = {
     onChangeTicketCounter: (ev) => (
       (state) => ({ tickets: Number(ev.target.value) })
     ), 
+    onFormSubmit: () => {
+      
+      /*
+      return (
+        (state) => ({ tickets: Number(ev.target.value) })
+      )
+      */
+    }
   }
   const view = (state, actions) => {
     // -----------------------------------
@@ -101,15 +110,20 @@ const FormApp = (containerId, formDefinition) => {
     // -----------------------------------
     const RowSubmitButton = props => {
       return  h ( "div", { class: "text-center px-5" },
-        h ( "button", { class:"btn btn-primary col-sm-6", type:"submit" },  [
-          h ( "span", { class: "default-submit" }, props.row.caption ),
-          props.row.withSpinner && (
-            h ( "span", { class: "busy-submit"}, [
-              h ( "div", { class: "spinner-border spinner-border-sm" } ),
-              props.row.busyCaption
-            ] )
-          )
-        ] )
+        h ( "button", 
+          { class: "btn btn-primary col-sm-6", 
+            type: "submit",
+            onclick: () => actions.onFormSubmit() },
+          [ 
+            h ( "span", { class: "default-submit" }, props.row.caption ),
+            props.row.withSpinner && (
+              h ( "span", { class: "busy-submit"}, [
+                h ( "div", { class: "spinner-border spinner-border-sm" } ),
+                props.row.busyCaption
+              ] )
+            )
+          ] 
+        )
       )
     }
     // -----------------------------------
@@ -135,8 +149,8 @@ const FormApp = (containerId, formDefinition) => {
       )
     // -----------------------------------
     return h( Form, {
-      formId: formDefinition.formId,  
-      formModel: formDefinition.model
+      formId: definition.formID,  
+      formModel: definition.model
     } )
   }
   hyperapp.app (state, actions, view, containerId)
