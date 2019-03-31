@@ -100,13 +100,17 @@ const FormApp = (containerId, formDefinition) => {
     }
     // -----------------------------------
     const RowSubmitButton = props => {
-      return h ( "div", { class: "text-center" } , "[ Sumbmit button]" )
-      /*
-      rowType: "submit",
-      caption: "Zarejestruj się",
-      withSpinner: true,
-      busyCaption: "Trwa zgłaszanie..."
-      */
+      return  h ( "div", { class: "text-center px-5" },
+        h ( "button", { class:"btn btn-primary col-sm-6", type:"submit" },  [
+          h ( "span", { class: "default-submit" }, props.row.caption ),
+          props.row.withSpinner && (
+            h ( "span", { class: "busy-submit"}, [
+              h ( "div", { class: "spinner-border spinner-border-sm" } ),
+              props.row.busyCaption
+            ] )
+          )
+        ] )
+      )
     }
     // -----------------------------------
     const Form = props => 
