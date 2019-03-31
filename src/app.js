@@ -76,8 +76,34 @@ const FormApp = (containerId, formDefinition) => {
             " zł"
           ]),
         ])
-      ]); 
-    
+      ])
+    // -----------------------------------
+    const RowAgreeGDPR = props => 
+      h( "div", { class: "form-group mt-2" },
+        h( "div", { class: "form-check" }, [
+          h ( "input", 
+            {
+              type: "checkbox",
+              class: "form-check-input mt-2", 
+              id: props.row.name,
+              name: props.row.name,
+              required: props.row.isRequired
+            }, ),
+
+          h ( "label", 
+            { class: "form-check-label", for: props.row.name }, 
+            "Zgoda na przetwarzanie danych."
+          ),
+          h ( "div", { class: "invalid-feedback mb-2" }, 
+            "Pole musi zostać zaznaczone. Bez zgody na przetwarzanie danych osobowych nie możemy przyjać Państwa rejestracji."
+          ),
+          h ("div", 
+            { class: "small" }, 
+            "Wyrażam zgodę na przetwarzanie moich danych osobowych w celach marketingowych. Wyrażam zgodę na otrzymywanie od BSC Polska Sp. z o.o, informacji handlowych dotyczących produktów i usług oferowanych przez firmę. Zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE (RODO/GDPR)."
+          )
+        ] )
+      )
+
     // -----------------------------------
     const Form = props => 
       h( "form", { id: props.formId, class: "needs-validation" }, 
@@ -90,7 +116,7 @@ const FormApp = (containerId, formDefinition) => {
             case "ext-tickets":
               return h( RowTicketCount, { row: row } )
             case "confirm-gdpr":
-              return h( "div", { class:"form-row" }, "GDPR: Zgoda na przetwarzanie");
+              return h( RowAgreeGDPR, { row: row } );
             default:
               return h( "div", { class: "row" }, row.rowType )
 
