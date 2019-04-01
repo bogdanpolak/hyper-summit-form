@@ -42,22 +42,25 @@ const FormApp = ( containerId, definition ) => {
   }
   const view = (state, actions) => {
     // -----------------------------------
+    const FieldControl = (field) => 
+      h( "div", { class:"col-sm-6" },
+        h( "fieldset", { class:"mt-1 w-100" }, [
+          h( "label", { class: "mt-2 m-0", for: field.name }, field.caption ),
+          h( "input", 
+              { class: "form-control", 
+                type: field.fieldType,
+                id: field.name, 
+                name: field.name, 
+                required: field.isRequired } ),
+          h( "div", { class:"invalid-feedback" }, field.feedback ),
+        ] ) )
+    // -----------------------------------
     const RowSection = props => 
       h( "div", { class: "h6 form-section" }, props.row.title ) 
     // -----------------------------------
-    const RowTwoColumns = props =>
+    const RowTwoColumns = props => 
       h( "div", { class:"form-row" }, 
-        props.row.fields.map ( field => 
-          h( "div", { class:"col-sm-6" },
-            h( "fieldset", { class:"mt-1 w-100" }, [
-              h( "label", { class: "mt-2 m-0", for: field.id }, field.caption ),
-              h( "input", { class: "form-control", type: field.fieldType,
-                  id: field.id, name: field.id, required: field.isRequired } ),
-              h( "div", { class:"invalid-feedback" }, field.feedback ),
-            ])
-          )
-        )
-      )
+          props.row.fields.map ( field => FieldControl (field) ) )
     // -----------------------------------
     const RowTicketCount = props => 
       h( "div", { class:"form-row" }, [
