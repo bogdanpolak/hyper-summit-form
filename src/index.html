@@ -51,7 +51,7 @@
 	<main class="container" id="buy-ticket-section">
 	</main>
 
-	<main class="container">
+	<main class="container mt-5">
 		<div class="alert alert-info"> 
 			<h3 class="text-center"> HyperApp v1 TicketForm </h3>
 			<p class="text-center">
@@ -92,122 +92,197 @@
 		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
 		crossorigin="anonymous"></script>
 	<!-- *********************** -->
-	<script src="https://unpkg.com/hyperapp"></script>
+	<script src="https://unpkg.com/hyperapp@1.2.9"></script>
+	<script src="fake-fill-ticket-form.js"></script>
+	<script src="modal.js"></script>
 	<script src="app.js"></script>
 	<!-- *********************** -->
 	<script>
-		function renderTicketForm (containerId) {
 
-			const ticketFormDefinition = {
-				formID: "form-ticket",
-				model : [{ 
-					rowType: "section",
-					title: "Osoba rejestrujaca" 
-				},{ 
-					rowType: "two-columns",
-					fields: [{
-						fieldType: "text",
-						name: "person", 
-						caption: "Imię i nazwisko", 
-						feedback: "Proszę wprowadzić imię i nazwisko",
-						isRequired: true
-					},{
-						fieldType: "text",
-						name: "position", 
-						caption: "Stanowisko", 
-						feedback: "Proszę wprowadzić stanowisko",
-						isRequired: true
-					}]
-				},{ 
-					rowType: "two-columns",
-					fields: [{
-						fieldType: "email",
-						name: "email", 
-						caption: "Email", 
-						feedback: "Proszę wprowadzić adres email",
-						// <input type="email" />
-						isRequired: true
-					},{
-						fieldType: "text",
-						name: "phone", 
-						caption: "Telefon (najlepiej mobilny)", 
-						feedback: "Proszę wprowadzić nr telefonu",
-						isRequired: true
-					}]
-				},{ 
-					rowType: "section",
-					title: "Bilety" 
-				},{ 
-					rowType: "ext-tickets",
-					ticketValue: 799,
-					select: {
-						id: "tickets",
-						caption: "Liczba biletów",
-						range: {min:1, max:7},
-					},
-					total: {
-						id: "totalTicketValue",
-						caption: "Koszt całkowity netto"
-					}
-				},{ 
-					rowType: "section",
-					title: "Dane do faktury" 
-				},{ 
-					rowType: "two-columns",
-					fields: [{
-						fieldType: "text",
-						name: "company", 
-						caption: "Nazwa firmy", 
-						feedback: "Proszę wprowadzić nazwę firmy lub imię i nazwisko w przypadku osoby prywatnej",
-						isRequired: true
-					},{
-						fieldType: "text",
-						name: "address", 
-						caption: "Adres", 
-						feedback: "Proszę wprowadzić adres firmy",
-						isRequired: true
-					}]
-				},{ 
-					rowType: "two-columns",
-					fields: [{
-						fieldType: "text",
-						name: "postalCode", 
-						caption: "Kod pocztowy", 
-						feedback: "Proszę wprowadzić kod pocztowy",
-						isRequired: true
-					},{
-						fieldType: "text",
-						name: "city", 
-						caption: "Miasto", 
-						feedback: "Proszę wprowadzić miasto",
-						isRequired: true
-					}]
-				},{ 
-					rowType: "two-columns",
-					fields: [{
-						fieldType: "text",
-						name: "nip", 
-						caption: "NIP", 
-						feedback: "Proszę wprowadzić NIP firmy lub n/d w przypadku osoby prywatnej",
-						isRequired: true
-					}]
-				},{
-					rowType: "confirm-gdpr",
-					name: "giodo_agree",
-					caption: "Zgoda na przetwarzanie danych.",
-					feedback: "Pole musi zostać zaznaczone. Bez zgody na przetwarzanie danych osobowych nie możemy przyjać Państwa rejestracji.",
-					description: "Wyrażam zgodę na przetwarzanie moich danych osobowych w celach marketingowych. Wyrażam zgodę na otrzymywanie od BSC Polska Sp. z o.o, informacji handlowych dotyczących produktów i usług oferowanych przez firmę. Zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE (RODO/GDPR).",
-					isRequired: true
-				}]
+/* ------------------------------------------------------------------------
+ * Form as Object polyfill
+ * file: html-form-as-object.js
+ * ------------------------------------------------------------------------ */
+
+ HTMLFormElement.prototype.asObject = function () {
+	const dataArr = Array.from( (new FormData(this)).entries());
+	const obj = dataArr.reduce(
+		function(acc, item){ acc[item[0]]=item[1]; return acc; },
+		{}
+	);
+	return obj;
+};
+
+
+const ticketFormSubmit = {
+	formDefinition: {
+		formID: "form-ticket",
+		model : [{ 
+			rowType: "section",
+			title: "Osoba rejestrujaca" 
+		},{ 
+			rowType: "two-columns",
+			fields: [{
+				fieldType: "text",
+				name: "person", 
+				caption: "Imię i nazwisko", 
+				feedback: "Proszę wprowadzić imię i nazwisko",
+				isRequired: true
+			},{
+				fieldType: "text",
+				name: "position", 
+				caption: "Stanowisko", 
+				feedback: "Proszę wprowadzić stanowisko",
+				isRequired: true
+			}]
+		},{ 
+			rowType: "two-columns",
+			fields: [{
+				fieldType: "email",
+				name: "email", 
+				caption: "Email", 
+				feedback: "Proszę wprowadzić adres email",
+				// <input type="email" />
+				isRequired: true
+			},{
+				fieldType: "text",
+				name: "phone", 
+				caption: "Telefon (najlepiej mobilny)", 
+				feedback: "Proszę wprowadzić nr telefonu",
+				isRequired: true
+			}]
+		},{ 
+			rowType: "section",
+			title: "Bilety" 
+		},{ 
+			rowType: "ext-tickets",
+			ticketValue: 799,
+			select: {
+				id: "tickets",
+				caption: "Liczba biletów",
+				range: {min:1, max:7},
+			},
+			total: {
+				id: "totalTicketValue",
+				caption: "Koszt całkowity netto"
 			}
-			// formRedererHyperApp.generateDemo(containerId,ticketFormDefinition);
-			formRedererHyperApp.generate(containerId,ticketFormDefinition);
-		}
-
-		renderTicketForm ("buy-ticket-section")
-
-		$( document ).ready(function() {
+		},{ 
+			rowType: "section",
+			title: "Dane do faktury" 
+		},{ 
+			rowType: "two-columns",
+			fields: [{
+				fieldType: "text",
+				name: "company", 
+				caption: "Nazwa firmy", 
+				feedback: "Proszę wprowadzić nazwę firmy lub imię i nazwisko w przypadku osoby prywatnej",
+				isRequired: true
+			},{
+				fieldType: "text",
+				name: "address", 
+				caption: "Adres", 
+				feedback: "Proszę wprowadzić adres firmy",
+				isRequired: true
+			}]
+		},{ 
+			rowType: "two-columns",
+			fields: [{
+				fieldType: "text",
+				name: "postalCode", 
+				caption: "Kod pocztowy", 
+				feedback: "Proszę wprowadzić kod pocztowy",
+				isRequired: true
+			},{
+				fieldType: "text",
+				name: "city", 
+				caption: "Miasto", 
+				feedback: "Proszę wprowadzić miasto",
+				isRequired: true
+			}]
+		},{ 
+			rowType: "two-columns",
+			fields: [{
+				fieldType: "text",
+				name: "nip", 
+				caption: "NIP", 
+				feedback: "Proszę wprowadzić NIP firmy lub n/d w przypadku osoby prywatnej",
+				isRequired: true
+			}]
+		},{
+			rowType: "confirm-gdpr",
+			name: "giodo_agree",
+			caption: "Zgoda na przetwarzanie danych.",
+			feedback: "Pole musi zostać zaznaczone. Bez zgody na przetwarzanie danych osobowych nie możemy przyjać Państwa rejestracji.",
+			description: "Wyrażam zgodę na przetwarzanie moich danych osobowych w celach marketingowych. Wyrażam zgodę na otrzymywanie od BSC Polska Sp. z o.o, informacji handlowych dotyczących produktów i usług oferowanych przez firmę. Zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich danych oraz uchylenia dyrektywy 95/46/WE (RODO/GDPR).",
+			isRequired: true
+		},{
+			rowType: "submit",
+			caption: "Zarejestruj się",
+			withSpinner: true,
+			busyCaption: "Trwa zgłaszanie..."
+		}]
+	},
+	// -- end: formDefinition -----------------------------------------
+	__convertDataFormToApi: function (formData) {
+		var apiData = {};
+		apiData.fullname =  formData.person, 
+		apiData.position = 	formData.position, 
+		apiData.email = 	formData.email, 
+		apiData.phone = 	formData.phone, 
+		apiData.price = 	formData.ticketValue, 
+		apiData.tickets = 	formData.tickets, 
+		apiData.company = 	formData.company,
+		apiData.address = 	formData.address, 
+		apiData.postalcode = formData.postalCode, 
+		apiData.city =  	formData.city, 
+		apiData.nip =   	formData.nip 
+		return apiData;
+	},
+	init: function ( {rootElementID} ) {
+		// ------------------------------
+		// Modal window
+		this.httpModal = new ModalWindow ('modal-win-http');
+		// ------------------------------
+		formRedererHyperApp.generate({
+			containerId: rootElementID,
+			definition: this.formDefinition,
+			hyperapp: window.hyperapp,
+			submitEvent: this.onFormSubmit.bind(this)
 		});
+		setTimeout ( ()=> {
+			this.form = document.getElementById(this.formDefinition.formID);
+			// this.confirmBox = document.getElementById(this.divConfirmationId);
+			this.submitButton =  $(this.form).find(':submit');
+		} )
+	},
+	__reportSubmitOK: function (obj) {
+		var s1 = JSON.stringify(obj)
+		var s2 = s1.replace (/(",")/g, '", "')
+		console.log(s2)
+		var modal = new ModalWindow ('modal-win-report')
+		modal.showInfo ({
+			title:'Zgłoszono rejestrację', 
+			info: '<div class="h1 text-success text-center mb-0 icon-check"></div>'+
+				'<p class="text-center">Dane poprawne</p>'+
+				'<h5>JSON do wysłania:</h5><code class="small">'+s2+'</code>'
+		})
+	},
+	onFormSubmit: function () {
+		const isValid = this.form.checkValidity()
+		this.form.classList.add('was-validated')
+		if (isValid) {
+			// this.__setSubmitButtonCaption(1);
+			const fd = this.form.asObject()
+			const data = this.__convertDataFormToApi (fd)
+			this.__reportSubmitOK (data)
+			// AjaxHttpPut(this.apiURL, data, ... )
+		}
+	}
+
+}
+
+ticketFormSubmit.init( {rootElementID: "buy-ticket-section" } )
+
 	</script>
 	<!-- *********************** -->
 </body>
