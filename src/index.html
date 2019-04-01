@@ -92,12 +92,12 @@
 		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
 		crossorigin="anonymous"></script>
 	<!-- *********************** -->
-	<script src="https://unpkg.com/hyperapp"></script>
+	<script src="https://unpkg.com/hyperapp@1.2.9"></script>
 	<script src="fake-fill-ticket-form.js"></script>
 	<script src="app.js"></script>
 	<!-- *********************** -->
 	<script>
-		function renderTicketForm (containerId) {
+		function renderTicketForm (rootDivID) {
 
 			const ticketFormDefinition = {
 				formID: "form-ticket",
@@ -206,8 +206,11 @@
 					busyCaption: "Trwa zgłaszanie..."
 				}]
 			}
-			// formRedererHyperApp.generateDemo(containerId,ticketFormDefinition);
-			formRedererHyperApp.generate(containerId,ticketFormDefinition);
+			formRedererHyperApp.generate({
+				containerId: rootDivID,
+				definition: ticketFormDefinition,
+				hyperapp: window.hyperapp
+			});
 		}
 
 		renderTicketForm ("buy-ticket-section")

@@ -1,24 +1,6 @@
-const CounterApp = (htmlContainer) => {
-  const h = hyperapp.h	
-  const state = {
-    count: 0
-  }
-  const actions = {
-    down: value => state => ({ count: state.count - value }),
-    up: value => state => ({ count: state.count + value })
-  }
-  const view = (state, actions) => (
-    h("div", {}, [
-      h("h1", {}, state.count),
-      h("button", { onclick: () => actions.down(1) }, "-"),
-      h("button", { onclick: () => actions.up(1) }, "+")
-    ])
-  )
-  hyperapp.app (state, actions, view, htmlContainer)
-}
-
-
-const FormApp = ( containerId, definition ) => {
+const FormApp = ( container, definition, hyperapp ) => {
+  // hyperapp: JavaScript micro-framework for building declarative 
+  //   web applications. see: https://github.com/jorgebucaran/hyperapp
   const h = hyperapp.h	
   const rangeToArray = 
     ({min,max}) => Array.from(Array(max-min+1),(v,index)=>min+index)
@@ -156,29 +138,20 @@ const FormApp = ( containerId, definition ) => {
       formModel: definition.model
     } )
   }
-  hyperapp.app (state, actions, view, containerId)
+  hyperapp.app (state, actions, view, container)
 }
 
 const formRedererHyperApp = {
   reportErrors: errors => (errors.map ( 
     (msg) => console.error(msg) )
   ),
-  generateDemo: function(containerId) {
-    CounterApp ( document.getElementById (containerId) )
-  },
-  generate: function (containerId, formDefinition) {
-    const htmlRootElem = document.getElementById(containerId);
-    const isValid = paramsValidator.validate (
-      containerId, htmlRootElem, formDefinition
-    );
-    if (isValid) {
-      FormApp (
-        document.getElementById(containerId), 
-        formDefinition
-      )
-    } else {
+  generate: function ( params ) {
+    var { containerId, definition, hyperapp } = params
+    const rootElem = document.getElementById(containerId);
+    if ( paramsValidator.validate ( containerId, rootElem, definition ) )
+      FormApp ( rootElem, definition, hyperapp )
+    else
       this.reportErrors(paramsValidator.errorMessageList);
-    }
   }
 }
 
