@@ -2,8 +2,6 @@ const FormApp = ( container, definition, hyperapp, submitEvent ) => {
   // hyperapp: JavaScript micro-framework for building declarative 
   //   web applications. see: https://github.com/jorgebucaran/hyperapp
   const h = hyperapp.h	
-  const rangeToArray = 
-    ({min,max}) => Array.from(Array(max-min+1),(v,index)=>min+index)
   // -----------------------------------
   const state = {
     tickets: 1,
@@ -41,33 +39,44 @@ const FormApp = ( container, definition, hyperapp, submitEvent ) => {
       h( "div", { class:"form-row" }, 
           props.row.fields.map ( field => FieldControl (field) ) )
     // -----------------------------------
-    const RowTicketCount = props => 
-      h( "div", { class:"form-row" }, [
-        h( "fieldset", { class: "col-sm-3" }, [
-          h( "label", { class: "m-0", for: props.row.select.id}, 
-          props.row.select.caption ),
-          h( "select", 
-            { class: "form-control", 
-              name: props.row.select.id,
-              id: props.row.select.id, 
+    const RowTicketCount = props => {
+      const SelectCaptionAndControl = ( {id,caption,range}) => [
+        h( "label", { class: "m-0", for: id}, caption ),
+        h( "select", 
+            { class: "form-control",  name: id,  id: id, 
               onchange: (ev) => actions.onChangeTicketCounter(ev),
             },
-            rangeToArray(props.row.select.range).map (
+            // rangeToArray(range) => [ range.min, ... range.max ]
+            Array.from(
+              Array(range.max-range.min+1),
+              (v,index)=>range.min+index
+            ).map (
               (v) => h( "option",  { value: v }, v )
             )
+        )
+      ]
+      const TotalLabelAndCaption = ( {id,caption,tickets,ticketValue} ) => [
+        h( "p", { class:"mb-0" }, caption ),
+        h( "h5", { class:"mt-0" }, [
+          h( "span", { id: id }, tickets*ticketValue ), 
+          " zł"
+        ] )
+      ]
+      return (
+        h( "div", { class:"form-row" }, [
+          h( "fieldset", { class: "col-sm-3" }, 
+            SelectCaptionAndControl (props.row.select) ),
+          h( "div", { class: "col-sm-9 mt-0" }, 
+            TotalLabelAndCaption (
+              { id: props.row.total.id, 
+                caption: props.row.total.caption, 
+                tickets: state.tickets, 
+                ticketValue: props.row.ticketValue }
+            )
           )
-        ]),
-        h( "div", { class: "col-sm-9 mt-0" }, [
-          h( "p", { class:"mb-0" }, props.row.total.caption ),
-          h( "h5", { class:"mt-0" }, [
-            h( "span", 
-              { id: props.row.total.id },
-              state.tickets*props.row.ticketValue
-            ),
-            " zł"
-          ]),
-        ])
-      ])
+        ] )
+      )
+    }
     // -----------------------------------
     const RowAgreeGDPR = props => { 
       const htmInput =  h ( "input", 
@@ -133,6 +142,7 @@ const FormApp = ( container, definition, hyperapp, submitEvent ) => {
     return h( Form, {
       formId: definition.formID,  
       formModel: definition.model
+      // oncreate={actions.init}>
     } )
   }
   hyperapp.app (state, actions, view, container)
