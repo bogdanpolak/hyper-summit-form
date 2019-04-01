@@ -34,20 +34,22 @@ const fillTicketForm = {
 	],
 
 	fill: function(index) {
+        const getHtmlControl = (id) =>
+            document.getElementById(id) || (
+                console.error ('No HTML element with id',id) )
 		if ( (index < 0) || (index >= this.samples.length ) ) {
 			index = 0
 		}
 		sample = this.samples[index]
 		for (var key in sample){
 			if (sample.hasOwnProperty(key)) {
-                const html = document.getElementById(key)
-                if (html) 
-                    (html.value = sample[key])
-                else
-                    console.error ('No HTML element with id',key)
+                html = getHtmlControl(key)
+                html && (html.value = sample[key])
 			}
 		}
-	},
+        html = getHtmlControl("giodo_agree")
+        html && ( html.checked = true )
+    },
 
 	clean: function () {
 		this.fill(0)
