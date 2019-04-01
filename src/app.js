@@ -1,4 +1,4 @@
-const FormApp = ( container, definition, hyperapp ) => {
+const FormApp = ( container, definition, hyperapp, submitEvent ) => {
   // hyperapp: JavaScript micro-framework for building declarative 
   //   web applications. see: https://github.com/jorgebucaran/hyperapp
   const h = hyperapp.h	
@@ -7,19 +7,16 @@ const FormApp = ( container, definition, hyperapp ) => {
   // -----------------------------------
   const state = {
     tickets: 1,
-    onSubmitEvent: () => {}
+    onSubmitEvent: submitEvent
   } 
   const actions = {
     onChangeTicketCounter: (ev) => (
       (state) => ({ tickets: Number(ev.target.value) })
     ), 
-    onFormSubmit: () => {
-      
-      /*
-      return (
-        (state) => ({ tickets: Number(ev.target.value) })
-      )
-      */
+    onFormSubmit: (ev) => {
+			ev.preventDefault();
+      ev.stopPropagation();
+      state.onSubmitEvent && state.onSubmitEvent()
     }
   }
   const view = (state, actions) => {
@@ -98,7 +95,7 @@ const FormApp = ( container, definition, hyperapp ) => {
         h ( "button", 
           { class: "btn btn-primary col-sm-6", 
             type: "submit",
-            onclick: () => actions.onFormSubmit() },
+            onclick: (ev) => actions.onFormSubmit(ev) },
           [ 
             h ( "span", { class: "default-submit" }, props.row.caption ),
             props.row.withSpinner && (
@@ -146,10 +143,10 @@ const formRedererHyperApp = {
     (msg) => console.error(msg) )
   ),
   generate: function ( params ) {
-    var { containerId, definition, hyperapp } = params
+    var { containerId, definition, hyperapp, submitEvent } = params
     const rootElem = document.getElementById(containerId);
     if ( paramsValidator.validate ( containerId, rootElem, definition ) )
-      FormApp ( rootElem, definition, hyperapp )
+      FormApp ( rootElem, definition, hyperapp, submitEvent )
     else
       this.reportErrors(paramsValidator.errorMessageList);
   }
