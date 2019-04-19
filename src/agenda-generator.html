@@ -20,21 +20,119 @@
 	src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
 	integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 
 	crossorigin="anonymous"></script>
-
 <script src="https://unpkg.com/hyperapp@1.2.9"></script>
 
+<!--  -----------------------------------------------------------
+ * Agenda Generator
+ *--  ------------------------------------------------------------  -->
 <script>
 
-const view = () => (
+const h = hyperapp.h
+
+const sessionView = (lecture) => [
+	h ("div", {"class":"time"}, 
+		lecture.time ),
+	h ("div", {"class":"title"}, [
+		h ("h3", {}, lecture.title ),
+		lecture.language && h ("div", {"class":"language "+lecture.language} )
+	]),
+	h ("div", {"class":"description"}, lecture.description ),
+	h ("div", {"class":"speaker"}, [
+		lecture.photo && h ("div", {"class":"speaker-photo"},
+			h ("img", {"src":lecture.photo}, "" )
+		),
+		h ("div", {"class":"speaker-info"}, [
+			lecture.presenter && h ("p", {"class": "speaker-name"},  lecture.presenter ),
+			lecture.company &&  h ("p", {"class":"speaker-company"}, lecture.company ),
+			lecture.bio && h ("p", {"class":"speaker-bio"},  lecture.bio )
+		])
+	])
+
+]
+
+const breakView = (lecture) => [
+	h ("div", {"class":"time"}, 
+		lecture.time ),
+	lecture.titleIcon && h ("h2", {"class":"session-icon"}, 
+		h ("i", {"class":lecture.titleIcon}, "" ) ),
+	h ("div", {"class":"title justify-content-center"},
+		h ("h3", {}, lecture.title ) ),
+	lecture.description && h ("div", {"class":"description"}, 
+		lecture.description )
+]
+
+const dayView = (day) => (
+	day.map( (slot) =>
+		(slot.length === 1) && 
+			h ("div", {"class":"row agenda-slot"},
+				slot[0].titleIcon &&
+				h ("div", {"class":"lecture col"}, breakView(slot[0]) )
+				||
+				h ("div", {"class":"lecture col"}, sessionView(slot[0]) )
+			)
+		||
+		(slot.length === 2) && 
+		h ("div", {"class":"row agenda-slot"}, [
+			h ("div", {"class":"lecture col-md-6"}, sessionView(slot[0]) ),
+			h ("div", {"class":"lecture col-md-6"}, sessionView(slot[1]) ),
+		])
+	)
+) 
+
+const view = (agendaDay1) => (
+	h ("div", {"class":"container agenda"}, [
+		h ("div", {"class":"agenda-day"}, [
+			h ("h2", {"class":"day-title"}, "Dzień pierwszy - 4 czerwca" ),
+			dayView(agendaDay1)
+		])
+	])
 )
 
-function main () {
-	hyperapp.app (null, null, view, 
+function generateAgenda (agendaDay1) {
+	hyperapp.app (null, null, view(agendaDay1), 
 		document.getElementById("agenda")
 	)
 
 }
-main()
+
+</script>
+
+<!--  ----------------------------------------------------------- -->
+ <script>
+const agendaForDay1 = [
+	[{
+		"time": "10:00 - 11:00",
+		"titleIcon": "icon-bell",
+		"title": "Otwarcie zlotu"
+	}], [{
+		"time": "11:00 - 11:15",
+		"titleIcon": "icon-cup",
+		"title": "Przerwa kawowa"
+	}], [{
+		"time": "11:15 - 12:30",
+		"id": 5,
+		"presenter": "Marcin Lesiński",
+		"email": "Marcin.Lesinski.87@gmail.com",
+		"phone": "796339559",
+		"bio": "Uwielbia programować i poznawać nowe technologie, w każdej wolnej chwili gromadzi wiedzę jak usprawnić proces programowania. Uczestnik wielu spotkań społecznościowych programistów (nie tylko Delphi). Uwielbia wymieniać wiedzę z innymi programistami.",
+		"title": "Spring4D + wstrzykiwanie zależności = klucz do architektury",
+		"description": "Wstrzykiwanie zależności oraz wykorzystanie kontenera zależności z biblioteki Spring4D. Zastosowanie wstrzykiwanie w kontekście architektury aplikacji oraz przy budowanie zestawu testów jednostkowych. Wymagania: Znajomość programowania obiektowego.",
+		"photo": "http://delphi.pl/zlot/assets/img/speakers/a1_speaker.jpg",
+		"language": "lang-pl"
+	}, {
+		"time": "11:15 - 12:30",
+		"id": 16,
+		"presenter": "Andrea Magni",
+		"company": "Freelance consultant",
+		"bio": "Italian computer engineer, software developer, trainer and consultant. Embarcadero MVP. Author of MARS-Curiosity REST library and TFrameStand component.",
+		"title": "Mobile Delphi with TFrameStand",
+		"description": "You will learn how to build a simple but complete mobile application with Delphi 10. Key topics ranging from application architecture (form, datamodules, frames) to remote and local data access (including databinding and list controls). TFrameStand (https://github.com/andrea-magni/TFrameStand) will help to modularize the application in order to keep the project maintainable.",
+		"photo": "http://delphi.pl/zlot/assets/img/speakers/andrea_magni2019.jpg",
+		"language": "lang-eng"
+	}]
+]
+
+generateAgenda (agendaForDay1)
 </script>
 
 </body>
