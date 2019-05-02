@@ -1,0 +1,335 @@
+<html lang="pl">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+	<link rel="stylesheet" 
+		href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+		crossorigin="anonymous">
+	<link rel="stylesheet" 
+		href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
+	<title>hyperApp - Agenda Zlotu 2019</title>
+	<link rel="stylesheet" href="agenda-generator.css">
+</head>
+
+<body>
+
+<section id="agenda">
+</section>
+
+<script 
+	src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+	integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 
+	crossorigin="anonymous"></script>
+<script src="https://unpkg.com/hyperapp@1.2.9"></script>
+
+<!--  -----------------------------------------------------------
+ * Agenda Generator
+ *--  ------------------------------------------------------------  -->
+<script>
+
+const h = hyperapp && hyperapp.h
+
+const sessionView = (lecture) => [
+	h ("div", {"class":"time"}, 
+		lecture.time ),
+	h ("div", {"class":"title"}, [
+		h ("h3", {}, lecture.title ),
+		lecture.language && h ("div", {"class":"language "+lecture.language} )
+	]),
+	h ("div", {"class":"description"}, lecture.description ),
+	h ("div", {"class":"speaker"}, [
+		lecture.photo && h ("div", {"class":"speaker-photo"},
+			h ("img", {"src":lecture.photo}, "" )
+		),
+		h ("div", {"class":"speaker-info"}, [
+			lecture.presenter && h ("p", {"class": "speaker-name"},  lecture.presenter ),
+			lecture.company &&  h ("p", {"class":"speaker-company"}, lecture.company ),
+			lecture.bio && h ("p", {"class":"speaker-bio"},  lecture.bio )
+		])
+	])
+
+]
+
+const breakView = (lecture) => [
+	h ("div", {"class":"time"}, 
+		lecture.time ),
+	lecture.titleIcon && h ("h2", {"class":"session-icon"}, 
+		h ("i", {"class":lecture.titleIcon}, "" ) ),
+	h ("div", {"class":"title justify-content-center"},
+		h ("h3", {}, lecture.title ) ),
+	lecture.description && h ("div", {"class":"description"}, 
+		lecture.description )
+]
+
+const dayPlanView = (planOfDay) => (
+	planOfDay && planOfDay.map( (slot) =>
+		(slot.length === 1) && 
+			h ("div", {"class":"row agenda-slot"},
+				slot[0].titleIcon &&
+				h ("div", {"class":"lecture col"}, breakView(slot[0]) )
+				||
+				h ("div", {"class":"lecture col"}, sessionView(slot[0]) )
+			)
+		||
+		(slot.length === 2) && 
+		h ("div", {"class":"row agenda-slot"}, [
+			h ("div", {"class":"lecture col-md-6"}, sessionView(slot[0]) ),
+			h ("div", {"class":"lecture col-md-6"}, sessionView(slot[1]) ),
+		])
+	)
+) 
+
+const view = (agenda) => (
+	h ("div", {"class":"container agenda"}, 
+		agenda && agenda.map( (day) => (
+			h ("div", {"class":"agenda-day"}, [
+			h ("h2", {"class":"day-title"}, day.name ),
+			dayPlanView ( day.plan )
+		]))) 
+	)
+)
+
+function generateAgenda (homeNode,agenda) {
+	hyperapp.app (null, null, view(agenda), homeNode )
+}
+
+</script>
+
+<!--  ----------------------------------------------------------- -->
+ <script>
+
+function buildAgendaModel() {
+	// - - - - - - - - - - - - - - - - - - - - -
+	const agendaForDay1 = [
+		[{
+			"time": "10:00 - 11:00",
+			"titleIcon": "icon-bell",
+			"title": "Otwarcie zlotu"
+		}], [{
+			"time": "11:00 - 11:15",
+			"titleIcon": "icon-cup",
+			"title": "Przerwa kawowa"
+		}], [{
+			"time": "11:15 - 12:30",
+			"id": 5,
+			"presenter": "Marcin Lesiński",
+			"email": "Marcin.Lesinski.87@gmail.com",
+			"phone": "796339559",
+			"bio": "Uwielbia programować i poznawać nowe technologie, w każdej wolnej chwili gromadzi wiedzę jak usprawnić proces programowania. Uczestnik wielu spotkań społecznościowych programistów (nie tylko Delphi). Uwielbia wymieniać wiedzę z innymi programistami.",
+			"title": "Spring4D + wstrzykiwanie zależności = klucz do architektury",
+			"description": "Wstrzykiwanie zależności oraz wykorzystanie kontenera zależności z biblioteki Spring4D. Zastosowanie wstrzykiwanie w kontekście architektury aplikacji oraz przy budowanie zestawu testów jednostkowych. Wymagania: Znajomość programowania obiektowego.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/a1_speaker.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "11:15 - 12:30",
+			"id": 16,
+			"presenter": "Andrea Magni",
+			"company": "Freelance consultant",
+			"bio": "Italian computer engineer, software developer, trainer and consultant. Embarcadero MVP. Author of MARS-Curiosity REST library and TFrameStand component.",
+			"title": "Mobile Delphi with TFrameStand",
+			"description": "You will learn how to build a simple but complete mobile application with Delphi 10. Key topics ranging from application architecture (form, datamodules, frames) to remote and local data access (including databinding and list controls). TFrameStand (https://github.com/andrea-magni/TFrameStand) will help to modularize the application in order to keep the project maintainable.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/andrea_magni2019.jpg",
+			"language": "lang-eng"
+		}], [{
+			"time": "12:30 - 12:45",
+			"titleIcon": "icon-cup",
+			"title": "Przerwa kawowa"
+		}], [{
+			"time": "12:45 - 14:00",
+			"id": 11,
+			"presenter": "Sylwester Wojnar",
+			"company": "J.B.R. Rogowiec ",
+			"bio": "Programista i projektant systemów informatycznych z wieloletnim stażem. Jeśli chodzi o przygodę z Delphi to trwa od pierwszych jego wersji. Z powodzeniem używa tego środowiska dzięki czemu zarabia na wikt i opierunek. Programuje też w innych językach ale Pascal był na początku.",
+			"title": "RTTI w Delphi",
+			"description": "Programowanie w Delphi z użyciem RTTI (moduł pozwalający na pobieranie informacji o typach w czasie działania aplikacji). Jak dotrzeć do informacji o typach z użyciem TRTTIContext, TRTTIType i innych typów zawartych w bibliotece? Praktycznie przykłady użycia RTTI – wykorzystanie atrybutów i interfejsów,  automatycznie generowanie kodu SQL, wstrzykiwanie zależności, wykorzystanie RTTI w technologiach REST-owych.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/a1_speaker.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "12:45 - 14:00",
+			"id": 18,
+			"presenter": "Glenn Dufke",
+			"company": "Glenn Dufke",
+			"bio": "Danish independent software engineer who recently became an Embarcadero MVP, focusing on multi-platform single codebase applications, embedded, industrial automation and the web. Member of the Smart Mobile Studio development team and an active moderator of the Delphi Developer Facebook group assisting members in solving their challenges.",
+			"title": "Android Things on Raspberry Pi",
+			"description": "Embedded development with RAD Studio and Android Things on Raspberry Pi. Build REST applications hosted on, and control IO on the Raspberry Pi with RAD Studio and Android Things",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/glenn-dufke2019.jpg",
+			"language": "lang-eng"
+		}], [{
+			"time": "14:00 - 15:00",
+			"titleIcon": "icon-bubbles",
+			"title": "LUNCH i przerwa obiadowa"
+		}], [{
+			"time": "15:00 - 16:15",
+			"id": 3,
+			"presenter": "Marcin Moszkowicz",
+			"company": "GEOMETRA S.C.",
+			"bio": "Z zamiłowania programista, od zawsze związany z Delphi. Swoją przygodę z programowaniem zaczynał od Turbo Pascala przez Borland C++ aż w końcu pojawiło się Delphi. Programowanie jest od zawsze jego pasją. Prowadzi własną firmę informatyczną od 1995 roku. Korzysta z wielu języków i narzędzi. Lubi dobre wino. Człowiek renesansu",
+			"title": "TWebBrowser w FMX - nie tylko przeglądarka",
+			"description": "Rozszerzenie funkcjonalności standardowych komponentów FMX na przykładzie wykorzystania TWebBrowser jako komponentu z mapami dla Delphi FMX. Przedstawiony zostanie prosty sposób zmiany funkcjonalności komponentu przy użyciu Maps SDK For Web firmy TomTom. Na wykładzie zostanie pokazane od podstaw jak wykorzystać istniejące komponenty w Delphi w celu budowy zaskakująco prosto a zarazem ciekawych rozszerzeń funkcjonalnych komponentów. Zaprezentowany też zostanie pełny komponent wspierający TomTom Maps SDK for Web.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/marcin_moszkowicz.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "15:00 - 16:15",
+			"id": 14,
+			"presenter": "Bogdan Polak",
+			"company": "BSC Polska",
+			"bio": "Trener i konsultant techniczny BSC Polska. Zajmuje się wsparciem technicznym klientów, głównie programistów Delphi i C++. Prelegent na konferencjach i seminariach polskich i międzynarodowych. Autor artykułów o architekturze projektów programistycznych. Poza Delphi i C++ lubi programować w JavaScript oraz w PHP. Po pracy zakochany w wypoczynku rowerowym, narciarstwie i żeglarstwie.",
+			"title": "Git dla programistów",
+			"description": "Git jest narzędziem, które programiści powinni używać codziennie. Ma wiele poleceń, flag i opcji konfiguracyjnych co utrudnia pierwszy kontakt, ale z drugiej strony daje dużo dobrego. W czasie sesji pokażę kilka scenariuszy wziętych z życia programisty, które pokażą w akcji tą dobrą stronę Git-a. Dowiesz się jak: korzystać z gałęzi, aktualizować gałąź z najnowszymi funkcjami do master, czyścić historię git-a, przygotować się do recenzowania kodu, przenieść zestaw rewizji (commit-ów) do innej gałęzi, cofnąć przypadkowo zatwierdzone zmiany i wiele innych.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/bogdan_polak.jpg",
+			"language": "lang-pl"
+		}], [{
+			"time": "16:15 - 16:30",
+			"titleIcon": "icon-cup",
+			"title": "Przerwa kawowa"
+		}], [{
+			"time": "16:30 - 17:45",
+			"id": 12,
+			"presenter": "Piotr Daszewski",
+			"company": "FX Systems Piotr Daszewski",
+			"bio": "Programista Delphi z 15 letnim doświadczeniem. Prowadzi niewielką firmę tworzącą dedykowane oprogramowanie, głównie z wykorzystaniem Delphi. Od kilku lat aktywnie wykorzystuje to środowisko do tworzenia rozwiązań mobilnych i webowych.",
+			"title": "REST i aplikacje mobilne w Delphi",
+			"description": "Budowa aplikacji FireMonkey na wiele urządzeń. Szybka budowa serwera REST i dostęp do bazy danych już istniejącego systemu (Web Module i wyjaśnienie modelu wielowątkowości dla takich rozwiązań, podłączenie do bazy MS SQL z wykorzystaniem ADO). Klient REST w aplikacji mobilnej. Uwzględnienie specjalnych uprawnień w Android 9. Obsługa danych JSON",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/piotr_daszewski2019.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "16:30 - 17:45",
+			"id": 1,
+			"presenter": "Dawid Najgiebauer", 
+			"company": "Proman",
+			"bio": "Programista Delphi. Od zawsze w szczególnym kręgu jego zainteresowań było zgłębianie sposobu wykonywania programów tak, aby były one pod każdym względem jak najbardziej optymalne. Wciąż nie boi się rozwiązań pozwalających na wyciśnięcie z programu maksimum wtedy, gdy jest to niezbędne.",
+			"title": "Wysokowydajny kod w Delphi - cześć 2",
+			"description": "Druga część wykładu sprzed dwóch lat na temat możliwości optymalizacji kodu bez konieczności zmiany samych algorytmów. Przedstawienie, jak w krótkim czasie można poprawić wydajność aplikacji, jak należy dobierać rozwiązania i jakie różnice dają czasem niepozorne zmiany zapisu kodu. W odróżnieniu od wykładu sprzed dwóch lat, tym razem skupimy się na efektach ulepszając przykładowy kod.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/dawid_najgiebauer.jpg",
+			"language": "lang-pl"
+		}], [{
+			"time": "17:45 - 18:00",
+			"titleIcon": "icon-cup",
+			"title": "Przerwa kawowa"
+		}], [{
+			"time": "18:00 - 19:15",
+			"id": 7,
+			"presenter": "Tomasz Tyrakowski",
+			"company": "SOL-System sp. z o.o.",
+			"bio": "Doktor informatyki, nauczyciel akademicki na Wydziale Matematyki i Informatyki UAM w Poznaniu. Od 20 lat programuje w Delphi, rozwijając i nadzorując projekt, który dawno już przekroczył milion wierszy kodu. Lata doświadczeń pozwoliły na poznanie jasnych i ciemnych stron Delphi jako języka i środowiska. Poznawanie kolejnych języków programowania traktuje jako swego rodzaju hobby.",
+			"title": "Nowoczesny język Delphi",
+			"description": "Wykład umieszcza język Delphi w nieco szerszej perspektywie innych języków, trendów i paradygmatów programowania. Zwraca uwagę na pewne okresowe mody w programowaniu, lokując Delphi w kontekście innych popularnych obecnie języków. Omówione zostaną wybrane elementy języka, które nie zawsze są w pełni wykorzystywane przez programistów, m. in. szablony (generics), wykorzystanie potencjału dynamicznych tablic, funkcje anonimowe i konstrukcja ogólnych, sparametryzowanych algorytmów przetwarzania (na wzór mechanizmów z innych języków, jak JavaScript). Liczne przykłady kodu (nie tylko w Delphi) pokażą, że narzędzie to może z powodzeniem konkurować z innymi językami.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/a1_speaker.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "18:00 - 19:15",
+			"id": 6,
+			"presenter": "Mikołaj Milewski",
+			"company": "Virion.IT Mikołaj Milewski",
+			"bio": "Programista, architekt, Scrum Master, prelegent - niestrudzenie szuka Wzorca Idealnego. Od chwil, kiedy ma rację woli tylko chwile, w których udaje mu się zrozumieć, że racji nie ma.",
+			"title": "Jak poSCRUMić zespół developerski?",
+			"description": "Jak ograniczyć ilość spotkań w projekcie? Jak utrzymać w ryzach przerost kreatywności programisty? Jak ogarnąć komunikację z klientem? Zespoły małe i duże: SCRUM na ratunek! Porozmawiamy o tym, dlaczego nie ma co się bać podejścia zwinnego i jak może ono pomóc w codziennej pracy każdego, kto jest zaangażowany w rozwój systemu informatycznego - czy jest developerem, testerem, managerem produktu czy jeszcze kimś innym ;-)",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/mikolaj_milewski2019.jpg",
+			"language": "lang-pl"
+		}], [{
+			"time": "19:15 - ...",
+			"titleIcon": "icon-fire",
+			"title": "Grill - Delphi & Fun",
+			"description":  "Grill na patio hotelowym, przy brzegu jeziora. Część społecznościowa pozwalająca na wymianę doświadczeń i poglądów. Możliwość spotkania i rozmowy w kameralnych warunkach z wykładowcami, praktykami Delphi, programistami, a także z pracownikami BSC Polska. Integracja i bliższa współpraca społeczności programistów może przyczynić się do powstania wielu innowacyjnych rozwiązań, a wzajemna inspiracja pozwoli uzyskać lub utrzymać uzyskana już przewagę biznesową na rynku.",
+		}]
+	]
+	// - - - - - - - - - - - - - - - - - - - - -
+	const agendaForDay2 = [
+		[{
+			"time": "10:00 - 11:15",
+			"id": 2,
+			"presenter": "Dawid Najgiebauer",
+			"company": "Proman",
+			"bio": "Programista Delphi. Od zawsze w szczególnym kręgu jego zainteresowań było zgłębianie sposobu wykonywania programów tak, aby były one pod każdym względem jak najbardziej optymalne. Wciąż nie boi się rozwiązań pozwalających na wyciśnięcie z programu maksimum wtedy, gdy jest to niezbędne.",
+			"title": "Aplikacje VCL DPI-Aware",
+			"description": "Coraz częściej na rynku mamy do czynienia z wyświetlaczami wysokich rozdzielczości. Najnowsze systemy operacyjne coraz doskonalej radzą sobie z zadaniami skalowania. Ale jak stworzyć aplikację w Delphi przy użyciu komponentów VCL, aby była ona poprawnie wyświetlana zarówno na tradycyjnych monitorach, jak i tych High-DPI? Na co zwracać uwagę, jak przygotowywać kod, jakie są pułapki technologi wysokich rozdzielczości oraz czego można oczekiwać po środowisku Delphi.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/dawid_najgiebauer.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "10:00 - 11:15",
+			"presenter": "Glenn Dufke",
+			"company": "Glenn Dufke",
+			"bio": "Danish independent software engineer who recently became an Embarcadero MVP, focusing on multi-platform single codebase applications, embedded, industrial automation and the web. Member of the Smart Mobile Studio development team and an active moderator of the Delphi Developer Facebook group assisting members in solving their challenges.",
+			"title": "Make VCL applications more attractive",
+			"description": "Give your VCL applcation a makeover using established design languages from Google and Microsoft, themes and make it stand out from the crowd",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/glenn-dufke2019.jpg",
+			"language": "lang-eng"
+		}], [{
+			"time": "11:15 - 11:30",
+			"titleIcon": "icon-cup",
+			"title": "Przerwa kawowa"
+		}], [{
+			"time": "11:30 - 12:45",
+			"id": 9,
+			"presenter": "Damian Romek",
+			"company": "Polcom Sp. z o.o.",
+			"bio": "Inżynier informatyki. Autor programu UltimatePlayer i UltimatePlayer Radio, które przed laty zostały napisane w Delphi. Programowaniem zajmuje się od blisko 14 lat. Jego pierwszym językiem programowania było Delphi. Obecnie programuje w Java, JavaScript, PHP, C#, Delphi.",
+			"title": "Atrakcyjne GUI",
+			"description": "Tworzenie atrakcyjnego doświadczenia użytkownika (User eXperience) w aplikacjach VCL z wykorzystaniem biblioteki AlphaSkins. ",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/a1_speaker.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "11:30 - 12:45",
+			"id": "17",
+			"presenter": "Andrea Magni",
+			"company": "Freelance consultant",
+			"bio": "Italian computer engineer, software developer, trainer and consultant. Embarcadero MVP. Author of MARS-Curiosity REST library and TFrameStand component.",
+			"title": "MARS-Curiosity REST Library",
+			"description": "Use open-source library (https://github.com/andrea-magni/MARS) to build multitier applications. It allows to create simple yet functional OpenAPI servers. Brief introduction. Overview of key functionalities in action (from authentication and session management to data access capabilities). The overall picture of creating modern distributed applications.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/andrea_magni2019.jpg",
+			"language": "lang-eng"
+		}], [{
+			"time": "12:45	13:00",
+			"titleIcon": "icon-cup",
+			"title": "Przerwa kawowa"
+		}], [{
+			"time": "13:00 - 14:15",
+			"id": "13",
+			"presenter": "Zdzisław Sroczyński",
+			"company": "Caprisoft",
+			"bio": "Pasjonat programowania od 30 lat, z Delphi od wersji 2. Delphi wykorzystuje również w pracy naukowej do analizy procesów interakcji człowiek-komputer i przetwarzania języka naturalnego, w tym tłumaczenia maszynowego i detekcji plagiatów. Fan narzędzi wielo-platformowych z Delphi na czele.",
+			"title": "Nowe życie dojrzałej aplikacji VCL",
+			"description": "Modernizacja klasycznych aplikacji VCL w zakresie GUI, look-and-feel, UX i dostosowania do współczesnych SO. Style i skórki. API Windows Vista i nowszych, obsługa ekranów HDPI, gestów, dotyku i czujników, AppTethering. Wstążka i  kontrolki VCL w stylu Windows 10. W trakcie wykładu zademonstrowana zostanie przykładowa aplikacja wraz z kolejnymi ulepszeniami, które przedstawią możliwości komponentów i technologii wchodzących w skład najnowszych wersji Delphi.",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/zdzislaw_sroczynski.jpg",
+			"language": "lang-pl"
+		}, {
+			"time": "13:00 - 14:15",
+			"id":4,
+			"presenter": "Marcin Lesiński",
+			"email": "Marcin.Lesinski.87@gmail.com",
+			"phone": "796339559",
+			"bio": "Uwielbia programować i poznawać nowe technologie, w każdej wolnej chwili gromadzi wiedzę jak usprawnić proces programowania. Uczestnik wielu spotkań społecznościowych programistów (nie tylko Delphi). Uwielbia wymieniać wiedzę z innymi programistami.",
+			"title": "Od zera do unit testera!",
+			"description": "Esencja wiedzy której potrzebujesz, żeby zacząć używać unit testów w swojej firmie. Na wykładzie krok po kroku zostanie przedstawiony proces pisania testów dla jednostki kodu. Dowiesz się również co to: Mock, TDD. Używane frameworki: DSharp, DUnitX",
+			"photo": "http://delphi.pl/zlot/assets/img/speakers/a1_speaker.jpg",
+			"language": "lang-pl"
+		}], [{
+			"time": "14:15 - 15:00",
+			"titleIcon": "icon-bubbles",
+			"title": "LUNCH"
+		}], [{
+			"time": "15:00 - 16:00",
+			"titleIcon": "icon-bell",
+			"title": "Sesja końcowa"
+		}]
+	]
+	// - - - - - - - - - - - - - - - - - - - - -
+	return [{
+		name: "Dzień pierwszy - 4 czerwca",
+		plan: agendaForDay1,
+	},{
+		name: "Dzień drugi - 5 czerwca",
+		plan: agendaForDay2,
+	}]
+	// - - - - - - - - - - - - - - - - - - - - -
+}
+
+const homeNode = document.getElementById("agenda")
+const agenda = buildAgendaModel()
+generateAgenda (homeNode, agenda)
+
+</script>
+
+</body>
+</html>
