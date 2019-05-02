@@ -255,6 +255,15 @@ const ticketFormSubmit = {
 			this.submitButton =  $(this.form).find(':submit');
 		} )
 	},
+	__setSubmitButtonCaption: function (version) {
+		if (version === 0) {
+			$(this.submitButton).find('span.default-submit').show();
+			$(this.submitButton).find('span.busy-submit').hide();
+		} else {
+			$(this.submitButton).find('span.default-submit').hide();
+			$(this.submitButton).find('span.busy-submit').show();
+		}
+	},
 	__reportSubmitOK: function (obj) {
 		var s1 = JSON.stringify(obj)
 		var s2 = s1.replace (/(",")/g, '", "')
@@ -271,11 +280,14 @@ const ticketFormSubmit = {
 		const isValid = this.form.checkValidity()
 		this.form.classList.add('was-validated')
 		if (isValid) {
-			// this.__setSubmitButtonCaption(1);
+			this.__setSubmitButtonCaption(1);
 			const fd = this.form.asObject()
 			const data = this.__convertDataFormToApi (fd)
 			this.__reportSubmitOK (data)
 			// AjaxHttpPut(this.apiURL, data, ... )
+			setTimeout ( ()=> {
+				this.__setSubmitButtonCaption(0);
+			}, 1000 )
 		}
 	}
 
