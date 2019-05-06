@@ -115,8 +115,10 @@
 	return obj;
 };
 
+const ticketPrice = 799
 
 const ticketFormSubmit = {
+	apiURL: "https://delphi.pl/zlot/zlot2019/api/ticket/",
 	formDefinition: {
 		formID: "form-ticket",
 		model : [{ 
@@ -158,7 +160,7 @@ const ticketFormSubmit = {
 			title: "Bilety" 
 		},{ 
 			rowType: "ext-tickets",
-			ticketValue: 799,
+			ticketValue: ticketPrice,
 			select: {
 				id: "tickets",
 				caption: "Liczba biletów",
@@ -225,21 +227,6 @@ const ticketFormSubmit = {
 		}]
 	},
 	// -- end: formDefinition -----------------------------------------
-	__convertDataFormToApi: function (formData) {
-		var apiData = {};
-		apiData.fullname =  formData.person, 
-		apiData.position = 	formData.position, 
-		apiData.email = 	formData.email, 
-		apiData.phone = 	formData.phone, 
-		apiData.price = 	formData.ticketValue, 
-		apiData.tickets = 	formData.tickets, 
-		apiData.company = 	formData.company,
-		apiData.address = 	formData.address, 
-		apiData.postalcode = formData.postalCode, 
-		apiData.city =  	formData.city, 
-		apiData.nip =   	formData.nip 
-		return apiData;
-	},
 	init: function ( {rootElementID} ) {
 		// ------------------------------
 		// Modal window
@@ -256,6 +243,22 @@ const ticketFormSubmit = {
 			// this.confirmBox = document.getElementById(this.divConfirmationId);
 			this.submitButton =  $(this.form).find(':submit');
 		} )
+	},
+	__convertDataFormToApi: function (formData) {
+		const price = formData.ticketValue || ticketPrice
+		var apiData = {};
+		apiData.fullname =  formData.person, 
+		apiData.position = 	formData.position, 
+		apiData.email = 	formData.email, 
+		apiData.phone = 	formData.phone, 
+		apiData.price = 	price, 
+		apiData.tickets = 	formData.tickets, 
+		apiData.company = 	formData.company,
+		apiData.address = 	formData.address, 
+		apiData.postalcode = formData.postalCode, 
+		apiData.city =  	formData.city, 
+		apiData.nip =   	formData.nip 
+		return apiData;
 	},
 	__setSubmitButtonCaption: function (version) {
 		if (version === 0) {
@@ -278,6 +281,27 @@ const ticketFormSubmit = {
 				'<h5>JSON do wysłania:</h5><code class="small">'+s2+'</code>'
 		})
 	},
+	onSendSuccess: function(response) {
+		this.__setSubmitButtonCaption(0);
+		// this.animateToTop();
+		// if (response.hasOwnProperty('hash')) { data['hash'] = response.hash; }
+		this.__reportSubmitOK (this.data)
+	},
+	onSendFailure: function(status,response) {
+		this.__setSubmitButtonCaption(0);
+		const modal = new ModalWindow ('modal-win-report')
+		if (status>0) {
+			modal.showDanger ({
+				title: 'Błąd połączenia z serwerem danych',
+				info: '<p>Podczas przekazywania danych rejestracyjnych wystąpił błąd<p><hr><h5>Status błędu:</h5><p>'+status+'</p><h5>Komunikat błędu:</h5><p>'+response+'</p>'
+			});
+		} else {
+			modal.showDanger ({
+				title: 'Niepoprawna odpowiedź serwera',
+				info: '<p>Odpowiedź serwera niezgodna z formatem JSON.</p><h5>Komunikat serwera:</h5><p>'+response+'</p>'
+			});
+		}
+	},
 	onFormSubmit: function () {
 		const isValid = this.form.checkValidity()
 		this.form.classList.add('was-validated')
@@ -285,11 +309,11 @@ const ticketFormSubmit = {
 			this.__setSubmitButtonCaption(1);
 			const fd = this.form.asObject()
 			const data = this.__convertDataFormToApi (fd)
-			this.__reportSubmitOK (data)
-			// AjaxHttpPut(this.apiURL, data, ... )
-			setTimeout ( ()=> {
-				this.__setSubmitButtonCaption(0);
-			}, 1000 )
+			this.data = data
+			self = this
+			AjaxHttpPut(this.apiURL, data, 
+				(response) => self.onSendSuccess(response), 
+				(status,response) => self.onSendFailure(status,response) )
 		}
 	}
 
