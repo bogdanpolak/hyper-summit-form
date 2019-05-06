@@ -51,19 +51,38 @@
 	<main class="container" id="buy-ticket-section">
 	</main>
 
-	<main class="container mt-5">
-		<div class="alert alert-info"> 
-			<h3 class="text-center"> HyperApp v1 TicketForm </h3>
-			<p class="text-center">
-				Tutaj kończy się świat dynamicznie generowananego kodu HTML przez <b>HyperApp</b>.
-			</p> 
-			<hr />
-			<p class="text-center">
-				<img src="./img/github.svg" alt="" style="position: relative; width:3em; top:-0.1em;">
-				<a href="https://github.com/jorgebucaran/hyperapp">hyperapp project</a>
-			</p>
+	<style>
+			.confirm-list span { 
+				margin-left: 0.3em;
+			},
+	</style>
+
+	<section id="confirmation-box-section" class="container mb-5" style="display: none;">
+		<div class="alert alert-success" role="alert">
+			<h4 class="alert-heading">Propozycja wykładu została zarejestrowana</h4>
+			<hr>
+			<ul class="confirm-list">
+				<li><strong>Osoba zgłąszająca</strong>:<span id="out-fullname"></span></li>
+				<li><strong>Stanowisko</strong>:<span id="out-position"></span></li>
+				<li><strong>Email</strong>:<span id="out-email"></span></li>
+				<li><strong>Telefon</strong>:<span id="out-phone"></span></li>
+			</ul>
+			<hr>
+			<ul class="confirm-list">
+				<li><strong>Liczba biletów</strong>:<span id="out-tickets"></span></li>
+				<li><strong>Cena 1 biletu</strong>:<span id="out-price"></span></li>
+			</ul>
+			<hr>
+			<ul class="confirm-list">
+				<li><strong>Nazwa firmy</strong>:<span id="out-company"></span></li>
+				<li><strong>Adres firmy</strong>:<span id="out-address"></span></li>
+				<li><strong>Kod pocztowy</strong>:<span id="out-postalcode"></span></li>
+				<li><strong>Miasto</strong>:<span id="out-city"></span></li>
+				<li><strong>NIP</strong>:<span id="out-nip"></span></li>
+				<li><strong>ID rejestracji</strong>:<span id="out-hash"></span></li>
+			</ul>
 		</div>
-	</main>
+	</section>
 	
 
 	<footer class="mt-5 py-3 text-center bg-dark text-white">
@@ -281,11 +300,26 @@ const ticketFormSubmit = {
 				'<h5>JSON do wysłania:</h5><code class="small">'+s2+'</code>'
 		})
 	},
+	__fillHtmlConfirmationBox(data) {
+		document.getElementById("buy-ticket-section").style.display = "none";
+		document.getElementById("confirmation-box-section").style.display = "block";
+		for (var key in data) {
+    		if (data.hasOwnProperty(key)) {
+				var outElem = document.getElementById("out-"+key)
+				if (outElem) {
+					outElem.innerHTML = data[key]
+				}
+			}
+		}
+	},
 	onSendSuccess: function(response) {
 		this.__setSubmitButtonCaption(0);
 		// this.animateToTop();
-		// if (response.hasOwnProperty('hash')) { data['hash'] = response.hash; }
-		this.__reportSubmitOK (this.data)
+		var data = this.formIntpuData;
+		if (response.hasOwnProperty('hash')) { 
+			data['hash'] = response.hash; 
+		}
+		this.__fillHtmlConfirmationBox(data)
 	},
 	onSendFailure: function(status,response) {
 		this.__setSubmitButtonCaption(0);
@@ -309,7 +343,7 @@ const ticketFormSubmit = {
 			this.__setSubmitButtonCaption(1);
 			const fd = this.form.asObject()
 			const data = this.__convertDataFormToApi (fd)
-			this.data = data
+			this.formIntpuData = data
 			self = this
 			AjaxHttpPut(this.apiURL, data, 
 				(response) => self.onSendSuccess(response), 
