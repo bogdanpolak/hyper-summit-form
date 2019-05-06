@@ -312,14 +312,27 @@ const ticketFormSubmit = {
 			}
 		}
 	},
+	__showToast: function(email){
+		console.log( '[Toast] Notification send to: '+email )
+	},
+	onSendNotification: function(hash,email) {
+		url = this.apiURL + 'notify/' + hash
+		console.log( 'Requesting registration notification: GET '+url )
+		self = this
+		AjaxHttpGet(url, (response) => self.__showToast(email) )
+	},
 	onSendSuccess: function(response) {
 		this.__setSubmitButtonCaption(0);
 		// this.animateToTop();
 		var data = this.formIntpuData;
 		if (response.hasOwnProperty('hash')) { 
-			data['hash'] = response.hash; 
+			data.hash = response.hash; 
 		}
 		this.__fillHtmlConfirmationBox(data)
+		self = this
+		setTimeout(
+			()=>self.onSendNotification(data.hash,data.email), 
+			100);
 	},
 	onSendFailure: function(status,response) {
 		this.__setSubmitButtonCaption(0);
@@ -345,9 +358,14 @@ const ticketFormSubmit = {
 			const data = this.__convertDataFormToApi (fd)
 			this.formIntpuData = data
 			self = this
+			
+			// self.onSendSuccess({hash: '16f83ef4776d'})  // bogdan.polak@bsc.com.pl
+			self.onSendSuccess({hash: '00087365ba1b'})  // bogdan.polak@wp.pl
+			/*
 			AjaxHttpPut(this.apiURL, data, 
 				(response) => self.onSendSuccess(response), 
 				(status,response) => self.onSendFailure(status,response) )
+			*/
 		}
 	}
 
