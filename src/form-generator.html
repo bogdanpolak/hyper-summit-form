@@ -14,40 +14,10 @@
 		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
 		crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/form-factory.css">
-	<!-- Custom CSS -->
-	<style>
-	.react-alert {
-		margin-top: 1rem;
-		color: #856404;
-		background-color: #fff3cd;
-		border-color: #ffeeba;
-		position: relative;
-		padding: .75rem 1.25rem;
-		margin-bottom: 1rem;
-		border: 1px solid transparent;
-		border-radius: .25rem;
-	}
-	</style>
-	<!-- --- -->
 	<title>hyperApp - Bilety Zlot 2019</title>
 </head>
 
 <body>
-	<!--
-	<section class="container-fluid summit-header" style="text-align: center; margin-bottom: 40px;">
-		<div style="padding-top: 10px;"> <img src="img/zlot_logo_blue_2x.png" width="200" height="68"> </div>
-		<h1 class="section-header"> Zlot Programistów Delphi 2019 </h1>
-		<h5 class="text-muted"> 4-5 czerwca 2019, Mszczonów </h5>
-	</section>
-	
-	<section class="jumbotron py-3 text-center" id="kup-bilety">
-		<div class="container">
-			<h1 class="jumbotron-heading"><i class="icon-note"></i> Kup bilety </h1>
-			<div class="h5">Zarejestruj udział firmy / udział indywidualny w zlocie i kup bilety</div>
-		</div>
-	</section>
-	-->
-
 	<main class="container" id="buy-ticket-section">
 	</main>
 
@@ -76,7 +46,7 @@
 		}
 	</style>
 
-	<section id="confirmation-box-section" class="container mb-5" style="display: none;">
+	<section id="confirmation-section" class="container mb-5" style="display: none;">
 		<div class="alert alert-success" role="alert">
 			<h4 class="alert-heading">Rejestracja na Zlot Programistów Delphi 2019 została przyjęta</h4>
 			<hr>
@@ -155,7 +125,7 @@
 
 const ticketPrice = 799
 
-const ticketFormSubmit = {
+const ticketProcessor = {
 	apiURL: "https://delphi.pl/zlot/zlot2019/api/ticket/",
 	formDefinition: {
 		formID: "form-ticket",
@@ -307,18 +277,6 @@ const ticketFormSubmit = {
 			$(this.submitButton).find('span.busy-submit').show();
 		}
 	},
-	__reportSubmitOK: function (obj) {
-		var s1 = JSON.stringify(obj)
-		var s2 = s1.replace (/(",")/g, '", "')
-		console.log(s2)
-		var modal = new ModalWindow ('modal-win-report')
-		modal.showInfo ({
-			title:'Zgłoszono rejestrację', 
-			info: '<div class="h1 text-success text-center mb-0 icon-check"></div>'+
-				'<p class="text-center">Dane poprawne</p>'+
-				'<h5>JSON do wysłania:</h5><code class="small">'+s2+'</code>'
-		})
-	},
 	__showHtmlProcessingSection(data) {
 		document.getElementById("buy-ticket-section").style.display = "none";
 		document.getElementById("processing-section").style.display = "block";
@@ -327,7 +285,7 @@ const ticketFormSubmit = {
 		this.requestNotifyFinished = true
 		console.log( '[Toast] Notification send to: '+data.email )
 		document.getElementById("processing-section").style.display = "none";
-		document.getElementById("confirmation-box-section").style.display = "block";
+		document.getElementById("confirmation-section").style.display = "block";
 		for (var key in data) {
     		if (data.hasOwnProperty(key)) {
 				var outElem = document.getElementById("out-"+key)
@@ -360,16 +318,16 @@ const ticketFormSubmit = {
 		AjaxHttpGet(url, 
 			(response) => self.__showHtmlConfirmationSection(data) )
 	},
-	onSendSuccess: function(response) {
+	onPutDataSuccess: function(response) {
 		this.__setSubmitButtonCaption(0);
-		// this.animateToTop();
+		// TODO: this.animateToTop();
 		if (response.hasOwnProperty('hash')) { 
 			this.formIntpuData.hash = response.hash; 
 		}
 		self = this
 		setTimeout( ()=>self.__RequestNotificationSend(), 50);
 	},
-	onSendFailure: function(status,response) {
+	onPutDataFailure: function(status,response) {
 		this.__setSubmitButtonCaption(0);
 		const modal = new ModalWindow ('modal-win-report')
 		if (status>0) {
@@ -393,20 +351,15 @@ const ticketFormSubmit = {
 			const data = this.__convertDataFormToApi (fd)
 			this.formIntpuData = data
 			self = this
-			
-			self.onSendSuccess({hash: '16f83ef4776d'})  // bogdan.polak@bsc.com.pl
-			// self.onSendSuccess({hash: '00087365ba1b'})  // bogdan.polak@wp.pl
-			/*
 			AjaxHttpPut(this.apiURL, data, 
-				(response) => self.onSendSuccess(response), 
-				(status,response) => self.onSendFailure(status,response) )
-			*/
+				(response) => self.onPutDataSuccess(response), 
+				(status,response) => self.onPutDataFailure(status,response) )
 		}
 	}
 
 }
 
-ticketFormSubmit.init( {rootElementID: "buy-ticket-section" } )
+ticketProcessor.init( {rootElementID: "buy-ticket-section" } )
 
 	</script>
 	<!-- *********************** -->
