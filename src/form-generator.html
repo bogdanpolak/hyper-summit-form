@@ -47,19 +47,38 @@
 		</div>
 	</section>
 	-->
-	
+
 	<main class="container" id="buy-ticket-section">
 	</main>
 
+	<section id="processing-section" class="container mb-5" style="display: none;">
+		<div class="card my-1 py-5">
+			<div class="card-body">
+				<h4 class="card-title mt-3">Proszę czekać</h4>
+				<h6 class="card-subtitle mt-3 mb-3 text-muted">Trwa przetwarzanie rejestracji</h6>
+				<p>Proszę nie zamukać okna przeglądarki i poczekać na zakończenie przetwarzania rejestracji na zlot.</p>
+				<p class="text-info font-italic">Dane zostały przesłane do serwera i aktulnie trwa generowanie faktury pro-forma oraz jej wysyłka na podany adres email: <span id="emai-send-to">acb@def.pl</span></p>
+				<div class="progress mt-5 mb-3"  style="height: 20px;">
+					<div class="progress-bar progress-bar-striped progress-bar-animated" 
+						role="progressbar" 
+						aria-valuenow="0" 
+						aria-valuemin="0" 
+						aria-valuemax="100" 
+						style="width: 0%;"></div>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<style>
-			.confirm-list span { 
-				margin-left: 0.3em;
-			},
+		.confirm-list span { 
+			margin-left: 0.3em;
+		}
 	</style>
 
 	<section id="confirmation-box-section" class="container mb-5" style="display: none;">
 		<div class="alert alert-success" role="alert">
-			<h4 class="alert-heading">Propozycja wykładu została zarejestrowana</h4>
+			<h4 class="alert-heading">Rejestracja na Zlot Programistów Delphi 2019 została przyjęta</h4>
 			<hr>
 			<ul class="confirm-list">
 				<li><strong>Osoba zgłąszająca</strong>:<span id="out-fullname"></span></li>
@@ -300,8 +319,14 @@ const ticketFormSubmit = {
 				'<h5>JSON do wysłania:</h5><code class="small">'+s2+'</code>'
 		})
 	},
-	__fillHtmlConfirmationBox(data) {
+	__showHtmlProcessingSection(data) {
 		document.getElementById("buy-ticket-section").style.display = "none";
+		document.getElementById("processing-section").style.display = "block";
+	},
+	__showHtmlConfirmationSection(data) {
+		this.requestNotifyFinished = true
+		console.log( '[Toast] Notification send to: '+data.email )
+		document.getElementById("processing-section").style.display = "none";
 		document.getElementById("confirmation-box-section").style.display = "block";
 		for (var key in data) {
     		if (data.hasOwnProperty(key)) {
@@ -312,27 +337,37 @@ const ticketFormSubmit = {
 			}
 		}
 	},
-	__showToast: function(email){
-		console.log( '[Toast] Notification send to: '+email )
-	},
-	onSendNotification: function(hash,email) {
-		url = this.apiURL + 'notify/' + hash
+	__RequestNotificationSend: function() {
+		const data = this.formIntpuData;
+		const url = this.apiURL + 'notify/' + data.hash
 		console.log( 'Requesting registration notification: GET '+url )
-		self = this
-		AjaxHttpGet(url, (response) => self.__showToast(email) )
+		this.__showHtmlProcessingSection(data)
+		this.requestNotifyFinished = false
+		this.requestNotifyStart = new Date()
+		const self = this
+		const inverval = setInterval ( 
+			()=>{
+				const elapsed = new Date() - self.requestNotifyStart
+				progress = Math.min(100,elapsed / 60);
+				const progressHtlmDiv = $("#processing-section .progress-bar")[0]
+				progressHtlmDiv.style.width = progress.toString()+"%"
+				progressHtlmDiv.setAttribute("aria-valuenow", progress)
+				if (this.requestNotifyFinished) {
+					clearInterval(inverval)
+				}
+			}, 
+			100)
+		AjaxHttpGet(url, 
+			(response) => self.__showHtmlConfirmationSection(data) )
 	},
 	onSendSuccess: function(response) {
 		this.__setSubmitButtonCaption(0);
 		// this.animateToTop();
-		var data = this.formIntpuData;
 		if (response.hasOwnProperty('hash')) { 
-			data.hash = response.hash; 
+			this.formIntpuData.hash = response.hash; 
 		}
-		this.__fillHtmlConfirmationBox(data)
 		self = this
-		setTimeout(
-			()=>self.onSendNotification(data.hash,data.email), 
-			100);
+		setTimeout( ()=>self.__RequestNotificationSend(), 50);
 	},
 	onSendFailure: function(status,response) {
 		this.__setSubmitButtonCaption(0);
@@ -359,8 +394,8 @@ const ticketFormSubmit = {
 			this.formIntpuData = data
 			self = this
 			
-			// self.onSendSuccess({hash: '16f83ef4776d'})  // bogdan.polak@bsc.com.pl
-			self.onSendSuccess({hash: '00087365ba1b'})  // bogdan.polak@wp.pl
+			self.onSendSuccess({hash: '16f83ef4776d'})  // bogdan.polak@bsc.com.pl
+			// self.onSendSuccess({hash: '00087365ba1b'})  // bogdan.polak@wp.pl
 			/*
 			AjaxHttpPut(this.apiURL, data, 
 				(response) => self.onSendSuccess(response), 
